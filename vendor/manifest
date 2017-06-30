@@ -1,0 +1,47 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/gopherjs/gopherjs/js",
+			"repository": "https://github.com/gopherjs/gopherjs",
+			"vcs": "git",
+			"revision": "dc374d32704510cb387457180ca9d5193978b555",
+			"branch": "master",
+			"path": "/js",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/jtolds/gls",
+			"repository": "https://github.com/jtolds/gls",
+			"vcs": "git",
+			"revision": "77f18212c9c7edc9bd6a33d383a7b545ce62f064",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/smartystreets/assertions",
+			"repository": "https://github.com/smartystreets/assertions",
+			"vcs": "git",
+			"revision": "4ea54c1f28ad3ae597e76607dea3871fa177e263",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/smartystreets/goconvey",
+			"repository": "https://github.com/smartystreets/goconvey",
+			"vcs": "git",
+			"revision": "9e8dc3f972df6c8fcc0375ef492c24d0bb204857",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/net/context",
+			"repository": "https://go.googlesource.com/net",
+			"vcs": "git",
+			"revision": "1f9224279e98554b6a6432d4dd998a739f8b2b7c",
+			"branch": "master",
+			"path": "/context",
+			"notests": true
+		}
+	]
+}

@@ -1,0 +1,9 @@
+.idea
+.vscode
+/.envrc
+*.swp
+.DS_Store
+prepros.cfg
+.env
+vendor
+!vendor/manifest
