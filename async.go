@@ -2,48 +2,68 @@ package async
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"runtime"
 	"sync"
-
-	"golang.org/x/net/context"
 )
 
-// Run provides a safe way to execute fns's functions asynchronously, recovering if they panic
+// Task ...
+type Task func(context.Context) error
+
+// Run provides a safe way to execute Task functions asynchronously, recovering if they panic
 // and provides all error stack aiming to facilitate fail causes discovery
-func Run(parent context.Context, fns ...func(ctx context.Context) error) error {
-	cerr := make(chan error, 1)
-	ctx, cancelFn := context.WithCancel(parent)
+func Run(parent context.Context, tasks ...Task) error {
+	ctx, cancel := context.WithCancel(parent)
+
+	resultChannel := make(chan error, len(tasks))
+
+	var wg sync.WaitGroup
+	wg.Add(len(tasks))
+
+	for _, task := range tasks {
+		go func(fn func(context.Context) error) {
+			defer wg.Done()
+			defer safePanic(resultChannel)
+			select {
+			case <-ctx.Done():
+				return // returning not to leak the goroutine
+			case resultChannel <- fn(ctx):
+				// Just do the job
+			}
+		}(task)
+	}
 
 	go func() {
-		var wg sync.WaitGroup
-		wg.Add(len(fns))
-
-		for _, fn := range fns {
-			go func(fn func(ctx context.Context) error) {
-				defer wg.Done()
-				defer func() {
-					if err := recover(); err != nil {
-						cancelFn()
-						var buf [16384]byte
-						stack := buf[0:runtime.Stack(buf[:], false)]
-						cerr <- fmt.Errorf("async.Run: panic %v\n%v",
-							err, chopStack(stack, "panic("))
-					}
-				}()
-
-				if err := fn(ctx); err != nil {
-					cancelFn()
-					cerr <- err
-				}
-			}(fn)
-		}
-
 		wg.Wait()
-		cerr <- nil
+		cancel()
+		close(resultChannel)
 	}()
 
-	return <-cerr
+	for err := range resultChannel {
+		if err != nil {
+			cancel()
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Just write the error to a error channel
+// when a goroutine of a task panics
+func safePanic(resultChannel chan<- error) {
+	if r := recover(); r != nil {
+		resultChannel <- wrapPanic(r)
+	}
+}
+
+// Add miningful message to the error message
+// for esiear debugging
+func wrapPanic(recovered interface{}) error {
+	var buf [16384]byte
+	stack := buf[0:runtime.Stack(buf[:], false)]
+	return fmt.Errorf("async.Run: panic %v\n%v", recovered, chopStack(stack, "panic("))
 }
 
 func chopStack(s []byte, panicText string) string {

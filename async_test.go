@@ -6,9 +6,10 @@ import (
 	"testing"
 	"time"
 
+	"context"
+
 	"github.com/StudioSol/async"
 	. "github.com/smartystreets/goconvey/convey"
-	"golang.org/x/net/context"
 )
 
 var (
@@ -89,8 +90,8 @@ func TestRun(t *testing.T) {
 			return nil
 		}
 
-		Convey("The another function should not be executed if does not need it", func() {
-			async.Run(context.Background(), f1, f2)
+		Convey("The other function should not be executed if does not need it", func() {
+			_ = async.Run(context.Background(), f1, f2)
 			mu.Lock()
 			So(exec[1], ShouldBeFalse)
 			mu.Unlock()
