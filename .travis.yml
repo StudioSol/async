@@ -1,10 +1,11 @@
 language: go
 go:
-  - 1.8
+  - 1.13.x
 go_import_path: github.com/StudioSol/async
 install:
   - make dependency
 script:
+  - make lint
   - make test
 after_success:
   - bash <(curl -s https://codecov.io/bash)
