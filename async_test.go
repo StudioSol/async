@@ -1,12 +1,11 @@
 package async_test
 
 import (
+	"context"
 	"errors"
 	"sync"
 	"testing"
 	"time"
-
-	"context"
 
 	"github.com/StudioSol/async"
 	. "github.com/smartystreets/goconvey/convey"
