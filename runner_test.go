@@ -91,3 +91,16 @@ func TestRunner_ContextTimeout(t *testing.T) {
 	require.True(t, time.Since(start) < time.Minute)
 	require.Equal(t, context.DeadlineExceeded, err)
 }
+
+func TestRunner_Panic(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	runner := NewRunner(func(context.Context) error {
+		panic(errors.New("test panic"))
+		return nil
+	})
+	if err := runner.Run(ctx); err != nil {
+		require.Contains(t, err.Error(), "async.Run: panic test panic")
+	}
+}

@@ -51,6 +51,8 @@ func (r *Runner) registerErr(err error) {
 func wrapperChannel(ctx context.Context, task Task) chan error {
 	cerr := make(chan error, 1)
 	go func() {
+		defer safePanic(cerr)
+
 		cerr <- task(ctx)
 		close(cerr)
 	}()
@@ -70,7 +72,6 @@ func (r *Runner) Run(parentCtx context.Context) error {
 			defer func() {
 				<-queue
 				wg.Done()
-				safePanic(cerr)
 			}()
 
 			select {
